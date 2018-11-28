@@ -1,0 +1,9 @@
+
+1. Please edit "title.tex" to change titles, authors and affiliation. The reviewer will be assigned later. 
+
+2. For any addition of packages, custom environments and misc, please edit "custom_preamble.tex". 
+
+3. Please leave "main.tex" intact (no edit). If you need to do so, please tell Natasa and Kota. Compile the documet using this main.tex. All other tex files are sourced / included in this document. 
+
+4. please edit "contents.tex" to write your chapter.  Please also set the chapter number in this tex file (line 1). We will inform you with the chapter number later.  
+

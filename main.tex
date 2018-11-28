@@ -1,0 +1,96 @@
+% BioImage Data Analysis Textbook 
+% Template
+
+\documentclass[11pt,a4paper,oneside]{report}
+% Palatino for rm and math | Helvetica for ss | Courier for tt
+\usepackage{mathpazo} % math & rm
+\linespread{1.05}        % Palatino needs more leading (space between lines)
+\usepackage[scaled]{helvet} % ss
+\usepackage{courier} % tt
+\normalfont
+\usepackage[T1]{fontenc}
+\usepackage[footnotesize]{caption}
+
+% Palatino needs more leading (space between lines)
+\linespread{1.05}         
+
+% space between paragraphs
+\parskip 7.2pt
+
+%making 1.5 spaced lines
+\usepackage{setspace}
+\onehalfspacing
+
+% background shading
+\usepackage{framed}
+
+% To allow several panels per figure
+\usepackage{subfig}
+
+\usepackage{pdfsync}
+
+% indent
+\setlength{\parindent}{0in} % avoids indent at the beginning of paragraph
+
+%\usepackage{url} % omitted, as this will just show URL in different font
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, 
+    citecolor=blue, 
+	linkcolor=black, 
+	urlcolor=black}
+
+\usepackage[pdftex]{graphicx}
+
+%% enable using eps figure.
+\usepackage{epstopdf}
+
+%% Citations. 
+%% Natbib is a popular style for formatting references.
+\usepackage{natbib}
+%% bibpunct sets the punctuation used for formatting citations.
+\bibpunct{(}{)}{;}{a}{,}{,}
+
+%%%%%%%% Color definitions %%%%%%%%
+\usepackage{color}
+\definecolor{gray09}{rgb}{0.9,0.9,0.9}  %background for codes
+\definecolor{red}{rgb}{1,0,0}
+\definecolor{blue}{rgb}{0,0,1}
+\definecolor{lightblue}{rgb}{0,0.8,1}
+\definecolor{Dark}{gray}{.2}
+\definecolor{Medium}{gray}{.6}
+\definecolor{Light}{gray}{.8}
+\definecolor{shadecolor}{rgb}{0.9, 0.9, 1}
+
+
+%%%%%%%% Custom Environments %%%%%%%%
+\include{custom_preamble}
+%%%%%%%% End of Custom Environments %%%%%%%%
+
+%%%%%%%% Custom Title %%%%%%%%
+\include{title}
+%%%%%%%% End of Custom Title %%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\date{\today}
+
+\pagestyle{empty}
+\titleTH
+\clearpage
+\pagestyle{fancyplain}
+
+\begingroup
+\hypersetup{linkcolor=black}
+\tableofcontents
+\endgroup
+
+\clearpage
+
+%%%% Insert the file name of the content %%%% 
+%\include{module5_content}
+\include{contents}
+
+\end{document}

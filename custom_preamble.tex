@@ -1,0 +1,85 @@
+%% This file is for adding custom environments!
+%% please add / delete / modify as you like. 
+
+%% a block for excercies
+\newenvironment{indentexercise}[1]%
+{{\setlength{\leftmargin}{2em}}%
+\textbf{Exercise \thesubsection-#1}%
+\begin{list}{}% 
+	\item%
+}
+{\end{list}}
+
+%% Indenting for ImageJ commands in a single line. 
+\newenvironment{indentFiji}%
+{\begin{list}{}%
+         {\setlength{\leftmargin}{1em}}%
+         \item[]%
+}
+{\end{list}}
+
+%% indenting for what ever command in a single line. 
+\newenvironment{indentCom}%
+{\begin{list}{}%
+         {\setlength{\leftmargin}{1em}}%
+         \item[]%
+}
+{\end{list}}
+
+%%% command for imageJ menu tree, in-line
+\newcommand{\ijmenu}[1]{\texttt{\small#1}}
+
+%%% command for inline command
+\newcommand{\ilcom}[1]{\texttt{\small#1}}
+
+%%% a quick command for making tab space
+ \newcommand{\tab}{\hspace*{3em}}
+
+%%% a quick command for horizontal line. 
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+
+%% textcomp provides extra control sequences for accessing text symbols:
+\usepackage{textcomp}
+\newcommand*{\micro}{\textmu}
+%% Here, we define the \micro command to print a text "mu".
+%% "\newcommand" returns an error if "\micro" is already defined.
+
+
+%%%%%%%%  Source Code Matters %%%%%%%%
+%% please keep settings for "listings" not too much changes: but the "language" should be changed to the code that you are mainly using.  
+
+\usepackage{alltt}
+
+% packge for codes
+\usepackage{listings}
+%\usepackage{listingsutf8}
+\lstset{ %
+language=matlab,                % could choose the language of the code, but we go for black and white, no syntax highlighting defined. 
+%basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+basicstyle=\small\ttfamily, % same as above, but use typewriter
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it's 1 each line 
+                                % will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{gray09},  % choose the background color. You must add \usepackage{color}
+keywordstyle=\color{blue}, 	%added
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+%frame=single,                   % adds a frame around the code
+%frame=trBL,
+tabsize=2,                      % sets default tabsize to 2 spaces
+captionpos=b,                   % sets the caption-position to bottom
+breaklines=true,                % sets automatic line breaking
+%breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+title=\lstname,                 % show the filename of files included with \lstinputlisting;
+                                % also try caption instead of title
+escapeinside={\%*}{*)},         % if you want to add a comment within your code
+morekeywords={*,...},            % if you want to add more keywords to the set
+morecomment=[l]{//},
+morecomment=[s]{/*}{*/},
+morestring=[b]",
+%aboveskip={7.2pt}	%supposed to be the space above llisting but dows not work. 
+%belowskip={7.2pt}
+}

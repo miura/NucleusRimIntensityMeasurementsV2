@@ -1,0 +1,73 @@
+%%%%%%%% title page matters %%%%%%%%  
+% http://sunsite.bilkent.edu.tr/pub/tex/ctan/info/latex-samples/titlepages.pdf
+
+%%%% Change title and the author. 
+\newcommand*{\titleTH}{\begingroup% T&H Typography
+\raggedleft
+
+% --- text above line ---
+\textsc{\textbf{\Large{NEUBIAS \hfill Chapter XX}}} 
+\HRule\\
+\vspace*{\baselineskip}
+
+
+% --- authors ---
+%{\Large Ulrike Schulze and S\'{e}bastien Tosi}\\[0.167\textheight]
+%\hfill \textsc{\underline{{\large Authors:}}}\\
+\hfill \textsc{{\large Authors:}}\\
+[0.3\baselineskip]
+\hfill {\Large Kota Miura}\\
+{\small Heidelberg University}\\
+{\small University of Konstanz}\\
+%[0.167\textheight]
+\vfill
+
+
+%\begin{center}
+% --- title of module ---
+{\textcolor{Medium}{\Huge Measurements of Intensity Dynamics at the Periphery of Nucleus}}\\
+[2\baselineskip]
+
+% --- name, date, and place of the course --- 
+{\bfseries NEUBIAS Bioimage Analysis Series}\\
+%\textbf{EMBL Heidelberg}\\
+%\textbf{7-13 June 2015}
+%\end{center}
+
+\vfill
+
+% --- reviewers/teachers ---
+%{\Large Centre for Molecular \& Cellular Imaging\\EMBL Heidelberg\\\plogo}\par
+%\hfill\textsc{\underline{Reviewers/Teachers:}}\\
+\hfill\textsc{Reviewers:}\\
+[0.3\baselineskip]
+\hfill {\Large Christian Tischer}\\
+{\small EMBL Heidelberg}\\
+[0.3\baselineskip]
+{\small \hfill NEUBIAS}\\
+%\vspace*{3\baselineskip}
+%\par
+%{\small Reviewer: }\par
+%{\Large EMBL Heidelberg, IRB Barcelona}\par
+%\includegraphics[width=0.15\textwidth]{fig/rgb_logo_2006_win.eps} 
+%\includegraphics[width=0.07\textwidth]{fig/Icon30pedge.jpg}\\[1cm] 
+\HRule\\
+
+% --- text below line ---
+{\small \hfill\textcolor{Medium}{ Compiled on: \today }}
+\endgroup}
+
+%%%%%%%% Header and Footer %%%%%%%%
+\usepackage{fancyhdr}
+\setlength{\headheight}{15.2pt}
+%\pagestyle{fancy}
+\pagestyle{fancyplain}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}{}}
+ 
+\lhead{\fancyplain{}{\textit{NEUBIAS2018}}}
+\chead{}
+\rhead{\fancyplain{}{\textit{\rightmark}}}
+\lfoot{}
+\cfoot{\fancyplain{}{\thepage}}
+\rfoot{}

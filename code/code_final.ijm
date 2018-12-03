@@ -24,7 +24,7 @@ for (i =0; i < nSlices; i++){
 
 
 function nucseg( orgID ){
-    //orgID = getImageID();
+    selectImage( orgId );
     run("Gaussian Blur...", "sigma=1.50 stack");
     
     setAutoThreshold("Otsu dark");

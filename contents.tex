@@ -6,32 +6,32 @@
 \section{Aim}
 
 % This is the trailer of this chapter. A short paragraph summarizing the aim, the motivation, key methods used and the goal. 
-The aim of this chapter is to learn how to construct a workflow for measuring the fluorescence intensity localized to the nuclear membrane. For this purpose, the nucleus image is segmented to create a mask along the nuclear rim. The reader will learn a typical technique for automatically delineating the segmented area by post-processing using the mathematical morphology algorithm, and how to loop that piece of ImageJ macro and iterate through multiple image frames to measure changes in fluorescence intensity over time. This chapter is also a good guide for learning how to convert ImageJ macro commands recorded by the Command Recorder to a stand-alone ImageJ macro.  
+The aim of this chapter is to learn how to construct a workflow for measuring the fluorescence intensity localized to the nuclear envelope. For this purpose, the nucleus image is segmented to create a mask along the nuclear rim. The reader will learn a typical technique for automatically delineating the segmented area by post-processing using the mathematical morphology algorithm, and how to loop that piece of ImageJ macro and iterate through multiple image frames to measure changes in fluorescence intensity over time. This chapter is also a good guide for learning how to convert ImageJ macro commands recorded by the Command Recorder to a stand-alone ImageJ macro.  
 
 \section{Introduction}
 
 %Explain the biological background and question why this analysis was designed. If there is any reference that approached the question using image analysis, please cite those papers. Please explain the outline of the workflow.  A block diagram / flow chart of the workflow outline will be quite helpful. 
 
-In some biological research projects, we encounter problems that should be studied by measuring fluorescence intensity at the boundary between two different compartments. Here, we pick up an example analysis that measures the changes in nuclear pore complex (NPC) protein density at nuclear membrane over time, in order to study the translocation process the protein from the cytoplasmic fraction to the nuclear membrane \citep{Boni2015}. 
+In some biological research projects, we encounter problems that should be studied by measuring fluorescence intensity at the boundary between two different compartments. Here, we pick up an example analysis that measures the changes in Lamin B receptor protein density targeting Inner Nuclear Membrane over time, in order to study the translocation process the protein from the cytoplasmic (Endoplasmic Retiulaum, ER) fraction to the nuclear membrane \citep{Boni2015}. 
 
- We analyze a two-channel time-lapse image stack, a sequence of the process of NPC protein relocalizing from the cytoplasm to the nuclear membrane.  The data was acquired by Andreas Boni (Jan Ellenberg lab, EMBL Heidelberg) and have been used in many training. His work, with more advanced bioimage analysis workflows for analyzing NPC dynamics, is published in The Journal of Cell Biology \citep{Boni2015}. Those codes and image data used in his study, which might be interesting for you after going through this chapter, are accessible through the supplementary data section in the journal website \footnote{http://jcb.rupress.org/content/209/5/705}. 
+ We analyze a two-channel time-lapse image stack, a sequence of the process of the protein relocalizing from the cytoplasm to the nuclear membrane.  The data was acquired by Andreas Boni (Jan Ellenberg lab, EMBL Heidelberg) and have been used in many training. His work, with more advanced bioimage analysis workflows for analyzing the protein targeting dynamics, is published in The Journal of Cell Biology \citep{Boni2015}. Those codes and image data used in his study, which might be interesting for you after going through this chapter, are accessible through the supplementary data section in the journal website \footnote{http://jcb.rupress.org/content/209/5/705}. 
  
  Two images shown in fig. \ref{fig:NucStrategy} are from the first and the last time points of a time-lapse sequence\footnote{The images shown in the fig. \ref{fig:NucStrategy} are from a 4D hyperstack ``NPC1.tif'', which can be downloaded using ImageJ plugin ``CMCI-EMBL''. More details are in "Dataset" section.}. 
 
-Compare these images carefully. The green signal broadly distributed in the cytoplasm at time point 1 becomes accumulated at the periphery of nuclei (red) at time point 15 - between these image frames, the signal changed it's localization from cytoplasm to the nuclear membrane. We construct a workflow that measures this accumulation process by writing a macro. The workflow involves two steps: First, we segment the rim of nucleus - nuclear membrane - using the first channel (histone). Second, we use that segmented nuclear rim as a mask to measure the intensity changes over time in the second channel. 
+Compare these images carefully. The green signal broadly distributed in the cytoplasmic area at time point 1 becomes accumulated at the periphery of nuclei (red) at time point 15 - between these image frames, the signal changed it's localization from cytoplasmic area (ER) to the nuclear envelope. We construct a workflow that measures this accumulation process by writing a macro. The workflow involves two steps: First, we segment the rim of nucleus - nuclear membrane - using the first channel (histone). Second, we use that segmented nuclear rim as a mask to measure the intensity changes over time in the second channel. 
 
 \begin{figure}[htbp]
  \centering
  \subfloat[Time point 1]{\label{fig:NucTimePoint1}\includegraphics[width = 0.45\textwidth]{fig/NPC_T01.png}} 
  \quad
  \subfloat[Time point 15]{\label{fig:NucTimePoint15}\includegraphics[width = 0.45\textwidth]{fig/NPC_T15.png}} \\
- \caption{NPC localization difference at two time points: More NPC in nucleus periphery. }
+ \caption{Lamin receptor localization difference at two time points: More Lamin receptor in nucleus periphery. }
  \label{fig:NucStrategy}
 \end{figure}
 
-Segmentation of nucleus using its marker (e.g. DAPI) is a popular image analysis technique used in many biological research projects, but to measure more specific location - in our case nuclear membrane - we need to add several more steps to refine the region-of-interest. When we are successful in determining the nuclear membrane, the measurement of intensity in that region over time is rather trivial. We just need to loop the same process for each time point. Especially for the analysis of time-lapse sequence, programming is highly recommended to iterate the measurement for each time point. We use ImageJ macro to put this measurement workflow into an automated script. 
+Segmentation of nucleus using its marker (e.g. DAPI) is a popular image analysis technique used in many biological research projects, but to measure more specific location - in our case nuclear envelope - we need to add several more steps to refine the region-of-interest. When we are successful in determining the nuclear envelope, the measurement of intensity in that region over time is rather trivial. We just need to loop the same process for each time point. Especially for the analysis of time-lapse sequence, programming is highly recommended to iterate the measurement for each time point. We use ImageJ macro to put this measurement workflow into an automated script. 
 
-This chapter should be a good guide not only limited to the segmentation of the nuclear membrane, but in general for segmenting the edge (perimeter) of biological compartments such as the edge of organelle, plasma membrane and tissue boundaries. In principle, similar post-processing strategy is also applicable to 3D volumes by using 3D morphology filters. 
+This chapter should be a good guide not only limited to the segmentation of the nuclear envelope, but in general for segmenting the edge (perimeter) of biological compartments such as the edge of organelle, plasma membrane and tissue boundaries. In principle, similar post-processing strategy is also applicable to 3D volumes by using 3D morphology filters. 
 
 \section{Tools}
 
@@ -61,13 +61,13 @@ All ImageJ macro codes can be downloaded from the Github repository\footnote{htt
 The image data we used in this chapter can be downloaded using the plugin "CMCI-EMBL". After installation of this plugin, select the menu item \ijmenu{[EMBL > Sample Images > NPCsingleNucleus.tif]} to load the image data. This is a time-lapse sequence of a cell, extracted from ``NPC1.tif'' which can be also downloaded through the same plugin. 
 
 \begin{itemize}
-\item Cell Type: 
-\item Scale: 
-\item Frame Rate: Sec / Frame
+\item Cell Type: Hela Cells
+\item Scale: 0.165 $\mu$m/pixel
+\item Frame Rate: 400 Sec/Frame
 \item Channels
 \begin{itemize}
-    \item Red channel: Histon, ex/em 358/461nm \dots
-	\item Green Channel: NPC,  ex/em 358/461nm \dots
+	\item Green Channel (C1): Lamin B Receptor-GFP (ex:488nm)
+    \item Red (C2) channel: H2B-mCherry (ex:561nm) 
 \end{itemize}
 \end{itemize}
 
@@ -81,7 +81,7 @@ The image data we used in this chapter can be downloaded using the plugin "CMCI-
 
 %\section{Measurement of Nucleus Periphery Intensity}
 
-To simplify the development, we focus on a single cell / nucleus to construct the workflow. Load the image stack \textbf{NPCsingleNucleus.tif}. This is a hyperstack sequence. Slide the scroll bar at the bottom back-and-forth to watch the process of intensity changes. Histone signal (red), used as a marker for nucleus, is more or less constant with its distribution. On the other hand, the NPC signal (green) exhibits strong accumulation to the nuclear membrane. To study this accumulation process, our aim is to measure the intensity changes of green signal intensity at the rim of the nucleus over time. The outline of the workflow is shown in the diagram (Fig.\ref{fig:outline}). 
+To simplify the development, we focus on a single cell / nucleus to construct the workflow. Load the image stack \textbf{NPCsingleNucleus.tif}. This is a hyperstack sequence. Slide the scroll bar at the bottom back-and-forth to watch the process of intensity changes. Histone signal (red), used as a marker for nucleus, is more or less constant with its distribution. On the other hand, the Lamin receptor signal (green) exhibits strong accumulation to the nuclear membrane. To study this accumulation process, our aim is to measure the intensity changes of green signal intensity at the rim of the nucleus over time. The outline of the workflow is shown in the diagram (Fig.\ref{fig:outline}). 
 
 \begin{figure}[H]
 \begin{center}
@@ -270,7 +270,7 @@ Following is the step-by-step procedure. Try first using the GUI (your mouse and
     \end{itemize}
     \item We use AnalyzeParticle as a filter for segmented object. In our case, this filtering removes nucleus touching the edge of image. This way of usage is also effective in removing small none-nucleus signals. 
   \end{itemize}
-  \item Invert the LUT of the "Mask" created by AnalyzeParticle, so operations done below recognizes nucleus as the target of Dilation and Erosion. 
+  \item Invert the LUT of the "Mask" created by AnalyzeParticle, so operations to be done in the following recognizes nucleus as the target of Dilation and Erosion. 
   \begin{itemize}
     \item \ijmenu{[Image > Look-up Table > Invert LUT]}
   \end{itemize}
@@ -366,14 +366,14 @@ We now have a block that segments nucleus rim. Save this code, and we are done w
 
 \subsection{Block 3: Intensity Measurement using Mask}
 
-Using the isolated nucleus rim image, we can specify the region for measuring the fluorescence intensity in the NPC channel. This will be the third block of the workflow. 
+Using the isolated nucleus rim image, we can specify the region for measuring the fluorescence intensity in the Lamin receptor channel. This will be the third block of the workflow. 
 
-Before start writing the third block of the workflow, we do a small preparation. We merge the rim-segmented stack and the NPC stack to create a multi-channel stack, which will be used as the input image data of this third block. Open the rim binary image (if you closed it already, run the second block macro again to regenerate it!) and the NPC image.  
+Before start writing the third block of the workflow, we do a small preparation. We merge the rim-segmented stack and the Lamin receptor stack to create a multi-channel stack, which will be used as the input image data of this third block. Open the rim binary image (if you closed it already, run the second block macro again to regenerate it!) and the Lamin receptor image.  
 
 \begin{figure}[!ht]
 \begin{center}
 \includegraphics[scale=1.0]{fig/NucRimNPTMerged.png}
-\caption{Segmented rim and NPC channel merged.}
+\caption{Segmented rim and Lamin receptor  channel merged.}
 \label{fig:NucRimMerged}
 \end{center}
 \end{figure}
@@ -408,7 +408,7 @@ We are now ready to start writing the third block of the workflow. Please follow
   \begin{itemize}
     \item Inverting the selection, now we are selecting the nucleus rim. 
   \end{itemize}
-  \item Activate the NPC image (C2) and then [Edit > Selection > Restore Selection]
+  \item Activate the Lamin receptor image (C2) and then [Edit > Selection > Restore Selection]
   \begin{itemize}
       \item 
   \end{itemize}
@@ -462,13 +462,13 @@ In the 1st line, we split the multichannel stack to do processing individually. 
     \item Line 9-10: To be more explicit, we compose the measurement options as \ilcom{opt} in line 9 and then use that variable \ilcom{opt} as an argument for \ilcom{Set Measurements} in line 10.
     \item Line 11: Activate nucleus rim image using ImageID captured in line 6, instead of using \ilcom{selectWindow}.
     \item Line 12-13: Create nucleus rim ROI (a selection).
-    \item Line 14: Activate NPC image using ImageID captured in line 8.
+    \item Line 14: Activate Lamin receptor image using ImageID captured in line 8.
     \item Line 15: Restore the ROI created in line 13.
     \item Line 16: We measure the region specified by the ROI created above.
 \end{itemize}
 
 \begin{indentexercise}{3}
-Merge the nucleus rim and the NPC image stacks as described in the beginning of this section and test the code
+Merge the nucleus rim and the Lamin receptor image stacks as described in the beginning of this section and test the code
 
 \ilcom{code\_block3\_measurements.ijm} 
 
@@ -485,12 +485,12 @@ In this updated code, following 4 lines were added for looping through the time 
 \begin{itemize}
     \item A new line was inserted at line 11 to define the condition of for-looping.
     \item A new line was inserted at line 13 to activate a specific frame in the nucleus rim stack.
-    \item A new line was inserted at line 17 to activate a specific frame in the NPC stack.
+    \item A new line was inserted at line 17 to activate a specific frame in the stack.
     \item A curly brace was added at line 20 to close the looping.
 \end{itemize}
 
 \begin{indentexercise}{4}
-Merge rim and NPC image stacks and test the code 
+Merge rim and Lamin receptor image stacks and test the code 
 
 \ilcom{code\_block3\_MeasurementOverTime.ijm} 
 
@@ -501,7 +501,7 @@ If you see 15 lines of measurement values in the Results window, you are success
 
 \subsection{Integrating Segmentation and Measurements}
 
-Finally, we can assemble three blocks of code: the channel splitting block, the segmentation block and the intensity measurement block. As the third block, the intensity measurement block, starts with a two-channel stack (nucleus rim segmentation image and the NPC signal image), all we need to do is to insert the segmentation block between line 4 and line 5 of block 3 code \ilcom{code\_block3\_MeasurementOverTime.ijm}. 
+Finally, we can assemble three blocks of code: the channel splitting block, the segmentation block and the intensity measurement block. As the third block, the intensity measurement block, starts with a two-channel stack (nucleus rim segmentation image and the Lamin receptor signal image), all we need to do is to insert the segmentation block between line 4 and line 5 of block 3 code \ilcom{code\_block3\_MeasurementOverTime.ijm}. 
 
 Instead of copy and pasting the segmentation block to the measurement block, a better way to do this is to convert the segmentation block to a user-defined function. Like all the macro commands that you see in the Build-in ImageJ macro function reference, we can create our own function by ourselves. We briefly learn how to write a custom function with a simple example. 
 
@@ -553,9 +553,10 @@ Only several lines were added to the original \ilcom{code\_block2\_recordNucSegV
 
 \begin{itemize}
     \item In line 1, we declare that this is a custom function named \ilcom{nucseg} that takes a single argument \ilcom{orgID}. In the original code, orgID, which is the imageID of the histone channel image, was captured using \ilcom{getImageID} command. 
-    \item Line 2 is commented out. This is because We do not need to do \ilcom{getImageID} since the imageID of the  histone channel image is provided through the argument of the function.  
-    \item One line is inserted at line 20, to capture the imageID of the resulting image stack - the mask of nuclear rim - of Image Calculation in line 19. This imageID is named as a variable ``resultID'' in the function and is returned in the line 28 as the final output of the function.
-    \item \ilcom{run("Clear Results");} is added at the bottom (line 27) to clear the results table, as we want to have only the results of intensity measurement later.
+    \item Line 2 is commented out. This is because We do not need to do \ilcom{getImageID} since the imageID of the  histone channel image is provided through the argument of the function.
+    \item Line 3 is inserted, to explicitly activate the image with id \ilcom{orgId}. 
+    \item One line is inserted at line 21, to capture the imageID of the resulting image stack - the mask of nuclear rim - of Image Calculation in line 20. This imageID is named as a variable ``resultID'' in the function and is returned in the line 29 as the final output of the function.
+    \item \ilcom{run("Clear Results");} is added at the bottom (line 28) to clear the results table, as we want to have only the results of intensity measurement later.
     \item  In the last line, a curly brace is added to mark the boundary of function.
 \end{itemize}
 

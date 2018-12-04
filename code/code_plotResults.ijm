@@ -1,7 +1,7 @@
 // store normalized total intensity values in an array
 intA = newArray( nResults ); 
 for ( i = 0 ; i < nResults ; i++ )
-	intA[i] = getResult("IntDen", i) / getResult("IntDen", 0);
+	intA[i] = getResult("RawIntDen", i) / getResult("IntDen", 0);
 
 //prepare x-axis values
 t = Array.getSequence( intA.length );

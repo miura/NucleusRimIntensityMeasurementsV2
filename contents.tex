@@ -12,9 +12,9 @@ The aim of this chapter is to learn how to construct a workflow for measuring th
 
 %Explain the biological background and question why this analysis was designed. If there is any reference that approached the question using image analysis, please cite those papers. Please explain the outline of the workflow.  A block diagram / flow chart of the workflow outline will be quite helpful. 
 
-In some biological research projects, we encounter problems that should be studied by measuring fluorescence intensity at the boundary between two different compartments. Here, we pick up an example analysis that measures the changes in nuclear pore complex (NPC) protein density at nuclear membrane over time, in order to study the translocation process the protein from the cytoplasmic fraction to the nuclear membrane (ref). 
+In some biological research projects, we encounter problems that should be studied by measuring fluorescence intensity at the boundary between two different compartments. Here, we pick up an example analysis that measures the changes in nuclear pore complex (NPC) protein density at nuclear membrane over time, in order to study the translocation process the protein from the cytoplasmic fraction to the nuclear membrane \citep{Boni2015}. 
 
- We analyze a two-channel time-lapse image stack, a sequence of the process of NPC protein relocalizing from the cytoplasm to the nuclear membrane.  The data was acquired by Andreas Boni (Jan Ellenberg lab, EMBL Heidelberg) and have been used in many training. His work is published in The Journal of Cell Biology (Boni et al, 2016). The actual codes and image data used in this study are accessible through the journal website\footnote(URL). 
+ We analyze a two-channel time-lapse image stack, a sequence of the process of NPC protein relocalizing from the cytoplasm to the nuclear membrane.  The data was acquired by Andreas Boni (Jan Ellenberg lab, EMBL Heidelberg) and have been used in many training. His work, with more advanced bioimage analysis workflows for analyzing NPC dynamics, is published in The Journal of Cell Biology \citep{Boni2015}. Those codes and image data used in his study, which might be interesting for you after going through this chapter, are accessible through the supplementary data section in the journal website \footnote{http://jcb.rupress.org/content/209/5/705}. 
  
  Two images shown in fig. \ref{fig:NucStrategy} are from the first and the last time points of a time-lapse sequence\footnote{The images shown in the fig. \ref{fig:NucStrategy} are from a 4D hyperstack ``NPC1.tif'', which can be downloaded using ImageJ plugin ``CMCI-EMBL''. More details are in "Dataset" section.}. 
 
@@ -48,7 +48,7 @@ We use Fiji (Fiji Is Just ImageJ) for image analysis.
     \end{itemize}
 \end{itemize}
 
-In addition, a plugin is required for loading the sample image data. Using the``Update site'' function, please add ``CMCI-EMBL'' to your Fiji installation and let Fiji to automatically add the plugin. Please restart Fiji after this plugin installation. 
+In addition, a plugin is required for loading the sample image data. Using the``Update sites'' function, please add ``CMCI-EMBL'' to your Fiji installation. Please restart Fiji after this plugin installation. 
 
 \section{Dataset}
 
@@ -56,7 +56,9 @@ In addition, a plugin is required for loading the sample image data. Using the``
 
 %Details of the image data. For example, nature of the specimen (e.g. name of the organism), strain if it is known, microscopy and capturing condition details (imaging setup, objective, dt, z-intervals...), type of probe in case of fluorescence image. If someone else has taken the image, please acknowledge and clarify the copyright / licensing. 
 
-The image data we used in this chapter can be downloaded using the plugin "CMCI-EMBL". After installation of this plugin, select the menu item \ijmenu{[EMBL > Sample Images > NPCsingleCell.tif]} to load the image data. This is a time-lapse sequence of a cell, extracted from ``NPC1.tif'' which can be also downloaded through the same plugin. 
+All ImageJ macro codes can be downloaded from the Github repository\footnote{https://github.com/miura/NucleusRimIntensityMeasurementsV2/tree/master/code}. 
+
+The image data we used in this chapter can be downloaded using the plugin "CMCI-EMBL". After installation of this plugin, select the menu item \ijmenu{[EMBL > Sample Images > NPCsingleNucleus.tif]} to load the image data. This is a time-lapse sequence of a cell, extracted from ``NPC1.tif'' which can be also downloaded through the same plugin. 
 
 \begin{itemize}
 \item Cell Type: 
@@ -64,8 +66,8 @@ The image data we used in this chapter can be downloaded using the plugin "CMCI-
 \item Frame Rate: Sec / Frame
 \item Channels
 \begin{itemize}
-    \item Red channel: Histon, ex./em. 358⁄461nm \dots
-	\item Green Channel: NPC,  ex./em. 358⁄461nm \dots
+    \item Red channel: Histon, ex/em 358/461nm \dots
+	\item Green Channel: NPC,  ex/em 358/461nm \dots
 \end{itemize}
 \end{itemize}
 
@@ -79,19 +81,27 @@ The image data we used in this chapter can be downloaded using the plugin "CMCI-
 
 %\section{Measurement of Nucleus Periphery Intensity}
 
-To simplify the development, we focus on a single cell / nucleus to construct the workflow. Load the image stack \textbf{NPCsingleNucleus.tif}. This is a hyperstack sequence. Slide the scroll bar at the bottom back-and-forth to watch the process of intensity changes. Histone signal (red), used as a marker for nucleus, is more or less constant with its distribution. On the other hand, the NPC signal (green) exhibits strong accumulation to the nuclear membrane. To study this accumulation process, our aim is to measure the intensity changes of green signal intensity at the rim of the nucleus over time.
+To simplify the development, we focus on a single cell / nucleus to construct the workflow. Load the image stack \textbf{NPCsingleNucleus.tif}. This is a hyperstack sequence. Slide the scroll bar at the bottom back-and-forth to watch the process of intensity changes. Histone signal (red), used as a marker for nucleus, is more or less constant with its distribution. On the other hand, the NPC signal (green) exhibits strong accumulation to the nuclear membrane. To study this accumulation process, our aim is to measure the intensity changes of green signal intensity at the rim of the nucleus over time. The outline of the workflow is shown in the diagram (Fig.\ref{fig:outline}). 
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[scale=0.9]{fig/nucrimMeasurementsDiagram.png}
+\caption{Outline of the workflow.}
+\label{fig:outline}
+\end{center}
+\end{figure}
 
 To achieve this aim we first need to identify the region of nucleus rim (``segmentation'') - in other words, we create a mask of the nucleus rim. Using this mask we measure the changes in intensity over time. 
 
 \subsection{Segmentation of Nucleus Rim}
 
-We first write a macro for the nucleus rim segmentation by taking following steps.  
+We first write a macro for the nucleus rim segmentation by taking following steps:  
 
 \begin{enumerate}
   \item Split the original multi-channel image stack and create two image stacks of each channel for processing them independently (fig. \ref{fig:originalNucleus})
   \item Blur the image to attenuate noise (fig. \ref{fig:BlurredNucleus})
     \item Nucleus segmentation: Binarize the image by intensity thresholding  (fig. \ref{fig:BInarizedNucleus})
-    \item Remove other Nuclei
+    \item Remove other Nuclei: At the right-bottom corner of the image, a small part of different nucleus is present. This should be removed. 
     \item Duplicate the image
     \begin{enumerate}
         \item Erode the original (fig. \ref{fig:erodedBinary})
@@ -103,7 +113,7 @@ We first write a macro for the nucleus rim segmentation by taking following step
 
 \end{enumerate}
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
  \centering
  \subfloat[Original Nucleus Image]{\label{fig:originalNucleus}\includegraphics[width = 0.30\textwidth]{fig/OriginalNuc.png}} 
  \quad
@@ -120,7 +130,7 @@ We first write a macro for the nucleus rim segmentation by taking following step
 \end{figure}
 
 
-In the following we record these steps as macro commands using the Command Recorder (\ijmenu{[Plugins > Macros > Record\ldots]}). We recommend you NOT to launch the command recorder from the beginning. Please first try to reproduce the workflow using mouse and the graphic user interface (GUI). This is like a rehearsal before recording your actions. When you become clear with the steps you have to take, record the processing steps. When you use the command recorder, be sure that ``Macro'' is selected in the ``Record:'' drop down menu at the top-left corner of the recorder.
+In the following we record these steps as macro commands using the Command Recorder (\ijmenu{[Plugins > Macros > Record\ldots]}). We recommend you NOT to launch the command recorder from the beginning. Please first try to reproduce the workflow using mouse and the graphical user interface (GUI). This is like a rehearsal before recording your actions. When you become clear with the steps you have to take, record the processing steps. When you use the command recorder, be sure that ``Macro'' is selected in the ``Record:'' drop down menu at the top-left corner of the recorder.
 
 \subsubsection{Block 1: Splitting Channels}
 
@@ -156,7 +166,7 @@ Activates the window with the title "name".
 
 This function takes a window title as an argument and activates a window with that title. When we used mouse to activate the nucleus channel window, we did it manually by visually recognizing the red nucleus image. On the other hand, in macro, we need to know the title of the windows of each individual channels to activate a specific window to provide it to macro as an argument of ``selectWindow''command. How can we get the name of the nucleus channel window after splitting the channels of the original image?
 
-Standard behavior of ``Split Channel'' command is that it automatically names the resulting stacks of individual channels by prefixing ``C1-'' or ``C2-'' or ``C3'' to the original image title. Based on this known-behavior, We can construct these names ifthe original image title is known. For this we use the command \ilcom{getTitle()} which returns the title of currently active window as a string. 
+Standard behavior of ``Split Channel'' command is that it automatically names the resulting stacks of individual channels by prefixing ``C1-'' or ``C2-'' or ``C3'' to the original image title. Based on this known behavior, we can construct these names if the original image title is known. For this we use the command \ilcom{getTitle()} which returns the title of currently active window as a string. 
 
 \fbox{
 \parbox[b][3em][c]{0.80\textwidth}{
@@ -173,9 +183,9 @@ Here is the code to activate the nucleus channel automatically after the splitti
 
 \textbf{Details:} 
 \begin{itemize}
-\item The first line grabs the window title as a string variable ``orgtitle''. 
+\item The first line grabs the window title as a string variable ``orgName''. 
 \item The second line splits the stacks to each individual channel stack.
-\item 3rd and 4th lines compose the window title of each channel stacks. 
+\item 3rd and 4th lines compose the window title for each channel stack. 
 \item 5th line activates the channel 1 stack. 
 \item 6th line acquires the image ID of channel 1 stack. 
 \item 7th line activates the channel 2 stack. 
@@ -205,7 +215,7 @@ Activates the image with the specified ID (a negative number). If id is greater 
 }
 \end{indentCom}
 
-We acquire image IDs just after the splitting. From here on, We will use image IDS when we want to specify the image window we want to work on and to activate it. 
+We acquire image IDs just after the splitting. From here on, we will use image IDs when we want to specify the image window we want to work on and to activate it. 
 
 \begin{indentexercise}{1}
 Test the code below and run it on several image windows. Confirm that each window has an unique ID number. 
@@ -260,7 +270,7 @@ Following is the step-by-step procedure. Try first using the GUI (your mouse and
     \end{itemize}
     \item We use AnalyzeParticle as a filter for segmented object. In our case, this filtering removes nucleus touching the edge of image. This way of usage is also effective in removing small none-nucleus signals. 
   \end{itemize}
-  \item Invert the LUT of the "Mask" created by AnalyzeParticle. 
+  \item Invert the LUT of the "Mask" created by AnalyzeParticle, so operations done below recognizes nucleus as the target of Dilation and Erosion. 
   \begin{itemize}
     \item \ijmenu{[Image > Look-up Table > Invert LUT]}
   \end{itemize}
@@ -299,7 +309,7 @@ This recorded macro already runs properly as it is, but there is a problem: the 
 
 \ilcom{selectWindow("C1-NPCsingleNucleus.tif");}. 
 
-The window title given in the argument of \ilcom{selectWindow} is hard-coded, so that if you need to apply this macro to a image data with a different widow title, it will not work. The macro
+The window title given in the argument of \ilcom{selectWindow} is hard-coded, so that if you need to apply this macro to a image data with a different window title, it will not work. The macro
 needs to be improved to allow the general applicability to other images. 
 
 For this reason, we need to change the code so that it uses ImageID instead of a fixed image title. Since the ImageID of the nucleus channel was already acquired after splitting the original image, we can use that ID to activate a specific image window. 
@@ -344,6 +354,7 @@ Create a new script tab and write the code below. Run the code with various stac
 print(nSlices);
 options = "title=dup.tif duplicate range=1-" + nSlices;
 print(options);
+run("Duplicate...", options);
 \end{lstlisting}
 \end{indentexercise}
 
@@ -357,9 +368,9 @@ We now have a block that segments nucleus rim. Save this code, and we are done w
 
 Using the isolated nucleus rim image, we can specify the region for measuring the fluorescence intensity in the NPC channel. This will be the third block of the workflow. 
 
-Before start writing the third block of the workflow, we do a small preparation. We merge the rim-segmented stack and the NPC stack to create a mock-multichannel stack, which will be used as the input image data of this third block. Open the rim binary image (if you closed it already, run the second block macro again to regenerate it!) and the NPC image.  
+Before start writing the third block of the workflow, we do a small preparation. We merge the rim-segmented stack and the NPC stack to create a multi-channel stack, which will be used as the input image data of this third block. Open the rim binary image (if you closed it already, run the second block macro again to regenerate it!) and the NPC image.  
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
 \begin{center}
 \includegraphics[scale=1.0]{fig/NucRimNPTMerged.png}
 \caption{Segmented rim and NPC channel merged.}
@@ -371,9 +382,9 @@ Two stacks can be merged to a two channel image stack by the following command.
 
 \ilcom{[Image > Color > Merge Channels\ldots]}
 
-In the dialogue window, assign red color (c1) to the nucleus channel (nucleus rim binary image), and  green color (C2) to the NPT channel. Make sure that "Create composite" is ticked. Clicking ``OK'' button, you will have an image stack that looks like figure \ref{fig:NucRimMerged}.
+In the dialogue window, assign red color (C1) to the nucleus channel (nucleus rim binary image), and  green color (C2) to the NPT channel. Make sure that "Create composite" is ticked. Clicking ``OK'' button, you will have an image stack that looks like figure \ref{fig:NucRimMerged}.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
 \begin{center}
 \includegraphics[scale=0.5]{fig/SetMeasurements.png}
 \caption{Measurement Settings.}
@@ -406,7 +417,7 @@ We are now ready to start writing the third block of the workflow. Please follow
 
 Selection of the rim should look like figure \ref{fig_RoiNucRim}.
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
 \begin{center}
 \includegraphics[scale=0.8]{fig/ROIselectionNucRim.png}
 \caption{ROI selection of nucleus rim. }
@@ -437,7 +448,7 @@ run("Restore Selection");
 run("Measure");
 \end{lstlisting}
 
-In the 1st line, we split the multichannel stack to do processing individually. In the 3rd and the 6th lines, Specific window titles are used. Just like we did in the first block, we need to convert these lines by composing window title of stacks for individual channel by adding prefixes. We also need to acquire their image IDs. For composing window titles, we just need to reuse the code we wrote already in the section ``Block 1: Splitting Channels''. 
+In the 1st line, we split the multichannel stack to do processing individually. In the 3rd and the 6th lines, specific window titles are used. Just like we did in the first block, we need to convert these lines by composing window title of stacks for individual channel by adding prefixes. We also need to acquire their image IDs. For composing window titles, we just need to reuse the code we wrote already in the section ``Block 1: Splitting Channels''. 
 
 
 \lstinputlisting[morekeywords={*, c1name, c2name, c1id, c2id, opt, getTitle}]{code/code_block3_measurements.ijm}
@@ -445,7 +456,7 @@ In the 1st line, we split the multichannel stack to do processing individually. 
 
 \begin{itemize}
     \item Line 1: We first need to capture the title of the multi-channel image. 
-    \item Line2: Then the channels are separated into two stacks.
+    \item Line 2: Then the channels are separated into two stacks.
     \item Line 3-4: Since we know the rule of how the resulting image stack names are, we construct titles each for channel 1 and channel 2. 
     \item Line 5-8: We then acquire image IDs.
     \item Line 9-10: To be more explicit, we compose the measurement options as \ilcom{opt} in line 9 and then use that variable \ilcom{opt} as an argument for \ilcom{Set Measurements} in line 10.
@@ -492,7 +503,7 @@ If you see 15 lines of measurement values in the Results window, you are success
 
 Finally, we can assemble three blocks of code: the channel splitting block, the segmentation block and the intensity measurement block. As the third block, the intensity measurement block, starts with a two-channel stack (nucleus rim segmentation image and the NPC signal image), all we need to do is to insert the segmentation block between line 4 and line 5 of block 3 code \ilcom{code\_block3\_MeasurementOverTime.ijm}. 
 
-Instead of copy and pasting the segmentation block to the measurement block, a better way to do this is to convert the segmentation block to a use-defined function. Like all the macro commands that you see in the Build-in ImageJ macro function reference, we can create our own function by ourselves. We briefly learn how to write a custom function with a simple example. 
+Instead of copy and pasting the segmentation block to the measurement block, a better way to do this is to convert the segmentation block to a user-defined function. Like all the macro commands that you see in the Build-in ImageJ macro function reference, we can create our own function by ourselves. We briefly learn how to write a custom function with a simple example. 
 
 If we have a code like below:
 
@@ -525,8 +536,6 @@ function calc1(n, m){
 }
 \end{lstlisting}
 
-Using variables provided as the argument, calculation is done and then the answer is \textbf{return}ed. Functions normally has input and output. In this case, inputs are \ilcom{n} and \ilcom{m} and the output is the computation result. 
-
 \begin{indentexercise}{5}
 \begin{enumerate}
 \item Modify the code above so that the function \ilcom{calc1} calculates m to the power of n. Use the build-in command pow(m, n). 
@@ -536,16 +545,16 @@ Using variables provided as the argument, calculation is done and then the answe
 
 \end{indentexercise}
 
-In a similar way, we can convert the segmentation block to a single custom function that takes an ImageID as input, does pre-processing, does segmentation, and then returns an ImageID of the segmented image as the output. Here is the code. 
+In a similar way, we can convert the segmentation block to a single custom function that takes an ImageID as input, does pre-processing, does segmentation, and then returns an ImageID of the segmented image as the output. Here is the code: 
 
 \lstinputlisting[morekeywords={*, function, return, orgID, resultID, nucseg}]{code/code_block2_recordNucSegV3_function.ijm}
 
 Only several lines were added to the original \ilcom{code\_block2\_recordNucSegV3.ijm}. 
 
 \begin{itemize}
-    \item In line 1, We declare that this is a custom function named \ilcom{nucseg} that takes a single argument \ilcom{orgID}. In the original code, orgID, which is the imageID of the histone channel image, was captured using \ilcom{getImageID} command. 
+    \item In line 1, we declare that this is a custom function named \ilcom{nucseg} that takes a single argument \ilcom{orgID}. In the original code, orgID, which is the imageID of the histone channel image, was captured using \ilcom{getImageID} command. 
     \item Line 2 is commented out. This is because We do not need to do \ilcom{getImageID} since the imageID of the  histone channel image is provided through the argument of the function.  
-    \item One line is inserted at line 20, to capture the imageID of the resulting image stack - the mask of nuclear rim - of Image Calculation in line 19. This imageID is named as a variable``resultID'' in the function and is returned in the line 28 as the final output of the function.
+    \item One line is inserted at line 20, to capture the imageID of the resulting image stack - the mask of nuclear rim - of Image Calculation in line 19. This imageID is named as a variable ``resultID'' in the function and is returned in the line 28 as the final output of the function.
     \item \ilcom{run("Clear Results");} is added at the bottom (line 27) to clear the results table, as we want to have only the results of intensity measurement later.
     \item  In the last line, a curly brace is added to mark the boundary of function.
 \end{itemize}
@@ -608,8 +617,8 @@ Here is the code for this plotting. Explanations follow.
  
  \begin{itemize}
      \item Line 2 creates a new array for storing intensity measurements listed in the Results table. \ilcom{nResults} is a build-in function that returns number of rows in the table. This array will be the Y-axis value in the plot. 
-     \item Line 3-4 gets the result of integrated density (Column "IntDen" of each row, and divide that value by the integrated density at the time point 0 (the first frame). 
-     \item Line 7 creates a new array for X-axis values. We will store time points. TO simplify, we use the frame number as time points, starting from 0. 
+     \item Line 3-4 gets the result of non-calibrated integrated density (Column "RawIntDen") of each row, and divide that value by the integrated density at the time point 0 (the first frame). 
+     \item Line 7 creates a new array for X-axis values, where we will store time points. To simplify, we use the frame number as time points, starting from 0. 
      \item Line 10: For fitting the plot in a good range, we first get the minimum and the maximum values of measured intensity. With function \ilcom{Array.getStatistics}, descriptive statistics values are called back to the provided variables in the argument. In this case, \ilcom{amin} is the minimum value and \ilcom{amax} is the maximum value of the array. 
      \item Line 13-19: Plotting commands.
      \begin{itemize}

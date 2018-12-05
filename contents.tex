@@ -12,15 +12,13 @@ The aim of this chapter is to learn how to construct a workflow for measuring th
 
 %Explain the biological background and question why this analysis was designed. If there is any reference that approached the question using image analysis, please cite those papers. Please explain the outline of the workflow.  A block diagram / flow chart of the workflow outline will be quite helpful. 
 
-In some biological research projects, we encounter problems that should be studied by measuring fluorescence intensity at the boundary between two different compartments. Here, we pick up an example analysis that measures the changes in Lamin B receptor protein density targeting Inner Nuclear Membrane over time, in order to study the translocation process the protein from the cytoplasmic (Endoplasmic Retiulaum, ER) fraction to the nuclear membrane \citep{Boni2015}. 
+In some biological research projects, we encounter problems that should be studied by measuring fluorescence intensity at the boundary between two different compartments. Here, we pick up an example analysis of the Lamin B receptor protein density targeting inner nuclear membrane. The protein changes its location from the cytoplasmic area (Endoplasmic Reticulum, ER) to the nuclear envelope \citep{Boni2015}. 
 
- We analyze a two-channel time-lapse image stack, a sequence of the process of the protein relocalizing from the cytoplasm to the nuclear membrane.  The data was acquired by Andreas Boni (Jan Ellenberg lab, EMBL Heidelberg) and have been used in many training. His work, with more advanced bioimage analysis workflows for analyzing the protein targeting dynamics, is published in The Journal of Cell Biology \citep{Boni2015}. Those codes and image data used in his study, which might be interesting for you after going through this chapter, are accessible through the supplementary data section in the journal website \footnote{http://jcb.rupress.org/content/209/5/705}. 
+ We analyze a two-channel time-lapse image stack, a sequence of the process of the protein re-localization that causes increases in the protein density at the nuclear envelope. The data was acquired by Andreas Boni (Jan Ellenberg lab, EMBL Heidelberg) and have been used in many training workshops in EMBL as a great example for learning bioimage analysis. His work, with more advanced bioimage analysis workflows for analyzing the protein targeting dynamics, is published in The Journal of Cell Biology \citep{Boni2015}. Those codes and image data used in his study, which might be interesting for you after going through this chapter, are accessible through the supplementary data section in the journal website \footnote{http://jcb.rupress.org/content/209/5/705}. 
  
- Two images shown in fig. \ref{fig:NucStrategy} are from the first and the last time points of a time-lapse sequence\footnote{The images shown in the fig. \ref{fig:NucStrategy} are from a 4D hyperstack ``NPC1.tif'', which can be downloaded using ImageJ plugin ``CMCI-EMBL''. More details are in "Dataset" section.}. 
+ Two images shown in fig.\ref{fig:NucStrategy} are from the first and the last time points of a time-lapse sequence\footnote{The images shown in the fig. \ref{fig:NucStrategy} are from a 4D hyperstack ``NPC1.tif'', which can be downloaded using ImageJ plugin ``CMCI-EMBL''. More details are in "Dataset" section.}. Compare these images carefully. The green signal broadly distributed in the cytoplasmic area at time point 1 becomes accumulated at the periphery of nuclei (red) at time point 15 - between these image frames, the signal changed its localization from ER to the nuclear envelope. We construct a workflow that measures this accumulation process by writing an ImageJ macro. The workflow involves two steps: First, we segment the rim of nucleus - nuclear membrane - using the first channel (histone). Second, we use that segmented nuclear rim as a mask to measure the intensity changes over time in the second channel. 
 
-Compare these images carefully. The green signal broadly distributed in the cytoplasmic area at time point 1 becomes accumulated at the periphery of nuclei (red) at time point 15 - between these image frames, the signal changed it's localization from cytoplasmic area (ER) to the nuclear envelope. We construct a workflow that measures this accumulation process by writing a macro. The workflow involves two steps: First, we segment the rim of nucleus - nuclear membrane - using the first channel (histone). Second, we use that segmented nuclear rim as a mask to measure the intensity changes over time in the second channel. 
-
-\begin{figure}[htbp]
+\begin{figure}[!ht]
  \centering
  \subfloat[Time point 1]{\label{fig:NucTimePoint1}\includegraphics[width = 0.45\textwidth]{fig/NPC_T01.png}} 
  \quad
@@ -29,9 +27,9 @@ Compare these images carefully. The green signal broadly distributed in the cyto
  \label{fig:NucStrategy}
 \end{figure}
 
-Segmentation of nucleus using its marker (e.g. DAPI) is a popular image analysis technique used in many biological research projects, but to measure more specific location - in our case nuclear envelope - we need to add several more steps to refine the region-of-interest. When we are successful in determining the nuclear envelope, the measurement of intensity in that region over time is rather trivial. We just need to loop the same process for each time point. Especially for the analysis of time-lapse sequence, programming is highly recommended to iterate the measurement for each time point. We use ImageJ macro to put this measurement workflow into an automated script. 
+Segmentation of nucleus using its marker (e.g. DAPI) is a popular image analysis technique used in many biological research projects, but to measure more specific location - in our case nuclear envelope - we need to add several more steps to refine the region-of-interest. When we are successful in determining the area of nuclear envelope, the measurement of intensity in that region over time is rather trivial. We just need to loop the same process for each time point. Especially for the analysis of time-lapse sequence, programming is highly recommended to iterate the measurement for each time point. 
 
-This chapter should be a good guide not only limited to the segmentation of the nuclear envelope, but in general for segmenting the edge (perimeter) of biological compartments such as the edge of organelle, plasma membrane and tissue boundaries. In principle, similar post-processing strategy is also applicable to 3D volumes by using 3D morphology filters. 
+This chapter should be a good guide not only limited to study the intensity changes occurring at the nuclear envelope , but also in general for segmenting the edge (perimeter) of biological compartments such as the edge of organelle, plasma membrane and tissue boundaries. In principle, similar post-processing strategy is also applicable to 3D volumes by using 3D morphology filters. 
 
 \section{Tools}
 
@@ -56,7 +54,7 @@ In addition, a plugin is required for loading the sample image data. Using the``
 
 %Details of the image data. For example, nature of the specimen (e.g. name of the organism), strain if it is known, microscopy and capturing condition details (imaging setup, objective, dt, z-intervals...), type of probe in case of fluorescence image. If someone else has taken the image, please acknowledge and clarify the copyright / licensing. 
 
-All ImageJ macro codes can be downloaded from the Github repository\footnote{https://github.com/miura/NucleusRimIntensityMeasurementsV2/tree/master/code}. 
+All ImageJ macro codes can be downloaded from the Github repository\footnote{https://github.com/miura/NucleusRimIntensityMeasurementsV2/}. 
 
 The image data we used in this chapter can be downloaded using the plugin "CMCI-EMBL". After installation of this plugin, select the menu item \ijmenu{[EMBL > Sample Images > NPCsingleNucleus.tif]} to load the image data. This is a time-lapse sequence of a cell, extracted from ``NPC1.tif'' which can be also downloaded through the same plugin. 
 
@@ -66,8 +64,9 @@ The image data we used in this chapter can be downloaded using the plugin "CMCI-
 \item Frame Rate: 400 Sec/Frame
 \item Channels
 \begin{itemize}
-	\item Green Channel (C1): Lamin B Receptor-GFP (ex:488nm)
-    \item Red (C2) channel: H2B-mCherry (ex:561nm) 
+    \item Red channel (C1): H2B-mCherry (ex:561nm)
+	\item Green Channel (C2): Lamin B Receptor-GFP (ex:488nm)
+ 
 \end{itemize}
 \end{itemize}
 
@@ -81,12 +80,12 @@ The image data we used in this chapter can be downloaded using the plugin "CMCI-
 
 %\section{Measurement of Nucleus Periphery Intensity}
 
-To simplify the development, we focus on a single cell / nucleus to construct the workflow. Load the image stack \textbf{NPCsingleNucleus.tif}. This is a hyperstack sequence. Slide the scroll bar at the bottom back-and-forth to watch the process of intensity changes. Histone signal (red), used as a marker for nucleus, is more or less constant with its distribution. On the other hand, the Lamin receptor signal (green) exhibits strong accumulation to the nuclear membrane. To study this accumulation process, our aim is to measure the intensity changes of green signal intensity at the rim of the nucleus over time. The outline of the workflow is shown in the diagram (Fig.\ref{fig:outline}). 
+To simplify the development, we focus on a single cell / nucleus to construct the workflow. Load the image stack \textbf{NPCsingleNucleus.tif}. This is a hyperstack sequence. Slide the scroll bar at the bottom back-and-forth to watch the process of intensity changes. H2B-mCherry signal (red), used as a marker for nucleus, is more or less constant with its distribution. On the other hand, the Lamin receptor signal (green) exhibits strong accumulation to the nuclear membrane. To study this accumulation process, our aim is to measure the intensity changes of green signal intensity at the rim of the nucleus over time. The outline of the workflow is shown in the diagram (Fig.\ref{fig:outline}). 
 
-\begin{figure}[H]
+\begin{figure}[!ht]
 \begin{center}
-\includegraphics[scale=0.9]{fig/nucrimMeasurementsDiagram.png}
-\caption{Outline of the workflow.}
+\includegraphics[scale=0.6]{fig/nucrimMeasurementsDiagram.png}
+\caption{The outline of the workflow}
 \label{fig:outline}
 \end{center}
 \end{figure}
@@ -125,7 +124,7 @@ We first write a macro for the nucleus rim segmentation by taking following step
  \subfloat[Eroded Binary Image]{\label{fig:erodedBinary}\includegraphics[width = 0.30\textwidth]{fig/eroded.png}}
  \quad
  \subfloat[Subtraction Result, the rim.]{\label{fig:NucleusRim}\includegraphics[width = 0.30\textwidth]{fig/NucRim.png}}
- \caption{Strategy of measurement.}
+ \caption{The strategy of segmentation}
  \label{fig:nucsegProc}
 \end{figure}
 
@@ -373,7 +372,7 @@ Before start writing the third block of the workflow, we do a small preparation.
 \begin{figure}[!ht]
 \begin{center}
 \includegraphics[scale=1.0]{fig/NucRimNPTMerged.png}
-\caption{Segmented rim and Lamin receptor  channel merged.}
+\caption{Merged image of the segmented nucleus rim and the lamin receptor  channel}
 \label{fig:NucRimMerged}
 \end{center}
 \end{figure}
